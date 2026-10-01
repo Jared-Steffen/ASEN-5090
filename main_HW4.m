@@ -1,6 +1,7 @@
 clc; clear; close all
 
 addpath("Functions\")
+addpath("Data\")
 
 set_constants2025();
 
