@@ -185,9 +185,133 @@ fprintf('First dPR3: %.3f m at %.6f hours\n', dPR3(1), time(1));
 fprintf('Last dPR3: %.3f m at %.6f hours\n', dPR3(end), time(end));
 
 %% Problem 5
+% Extract
+C2L = prnObs.C2L;
+L1C = prnObs.L1C;
+L2L = prnObs.L2L;
+
+% Ionosphere free model
+[pseudorange_IF, iono_corr] = ionocorr(C1C, L1, C2L, L2);
+
+% Plot ionosphere 
+figure;
+plot(time, iono_corr, 'b.');
+grid on;
+xlabel('Hours into August 19, 2026');
+ylabel('Ionospheric correction (m)');
+title('PRN 14 Ionospheric Correction');
+
+dPR4 = pseudorange_IF - (R - bsv - relsv + tropo);
+
+% Plot corrected residual
+figure;
+plot(time, dPR4, 'b.');
+grid on;
+xlabel('Hours into August 19, 2026');
+ylabel('dPR_4 = PRIF - (R - b_{sv} - rel_{sv} + tropo) (m)');
+title('PRN 14 Residual After Clock, Relativity, Tropo, and Iono Corrections');
+
+%first and last values
+fprintf('\nProblem 4:\n');
+fprintf('First dPR4: %.3f m at %.6f hours\n', dPR4(1), time(1));
+fprintf('Last dPR4: %.3f m at %.6f hours\n', dPR4(end), time(end));
+
+% Carrier phase
+[carrierphase_IF, iono_corr] = ionocorr_CP(L1C, L1, L2L, L2);
+
+% Plot ionosphere 
+figure;
+plot(time, iono_corr, 'b.');
+grid on;
+xlabel('Hours into August 19, 2026');
+ylabel('Ionospheric correction (m)');
+title('PRN 14 Ionospheric Correction w/ Carrier Phase');
+
+dCP4alt = carrierphase_IF - (R - bsv - relsv + tropo);
+
+% Plot corrected residual
+figure;
+plot(time, dCP4alt, 'b.');
+grid on;
+xlabel('Hours into August 19, 2026');
+ylabel('dCP4alt = CPIF - (R - b_{sv} - rel_{sv} + tropo) (m)');
+title('PRN 14 Residual After Clock, Relativity, Tropo, and Iono Corrections');
+
+%first and last values
+fprintf('\nProblem 4:\n');
+fprintf('First dCP4alt: %.3f m at %.6f hours\n', dCP4alt(1), time(1));
+fprintf('Last dCP4alt: %.3f m at %.6f hours\n', dCP4alt(end-1), time(end));
 
 %% Problem 6
 
+% Plot everything on the same plot
+figure();
+plot(time, dPR1, 'b.')
+hold on
+plot(time, dPR2, 'r.')
+plot(time, dPR3, 'g.')
+plot(time, dPR4, 'k.')
+plot(time, dCP4alt, 'm.')
+grid on
+xlabel('Hours into August 19, 2026')
+ylabel('Pseudorange residual (m)')
+legend('dPR_1','dPR_2','dPR_3','dPR_4','dCP4alt')
+title('PRN 14 Pseudorange Residual Corrections')
+
 %% Problem 7
 
+% Extract needed measurements
+C2W = prnObs.C2W;
+C5Q = prnObs.C5Q;
+L2W = prnObs.L2W;
+L5Q = prnObs.L5Q;
 
+% Extract SNRs
+S1C = prnObs.S1C;
+S2W = prnObs.S2W;
+S2L = prnObs.S2L;
+S5Q = prnObs.S5Q;
+
+% Calculate multipath
+[MP1, CMC1] = mpath(C1C, L1C, L1, L2W, L2);
+[MP2a, CMC2a] = mpath(C2L, L2L, L2, L1C, L1);
+[MP2b, CMC2b] = mpath(C2W, L2W, L2, L1C, L1);
+[MP5, CMC5] = mpath(C5Q, L5Q, L5, L1C, L1);
+
+% Plot
+figure;
+subplot(2,1,1)
+plot(time,CMC1,'b')
+grid on
+hold on
+plot(time,CMC2a,'r')
+plot(time,CMC2b,'g')
+plot(time,CMC5,'k')
+xlabel('Hours into August 19, 2026');
+ylabel('CMC (m)')
+legend('C1C','C2L','C2W','C5Q')
+title('Code Minus Carrier')
+
+subplot(2,1,2)
+plot(time,S1C,'.b')
+grid on
+hold on
+plot(time,S2L,'.r')
+plot(time,S2W,'.g')
+plot(time,S5Q,'.k')
+xlabel('Hours into August 19, 2026');
+ylabel('SNR (dB-Hz)')
+legend('S1C','S2L','S2W','S5Q')
+title('Signal-to-Noise Ratio')
+
+figure;
+plot(time,MP1,'b')
+hold on
+grid on
+plot(time,MP2a,'r')
+plot(time,MP2b,'g')
+plot(time,MP5,'k')
+xlabel('Hours into August 19, 2026');
+ylabel('MP (m)')
+legend('C1C','C2L','C2W','C5Q')
+title('Multipath')

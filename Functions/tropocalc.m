@@ -3,6 +3,6 @@ function tropo = tropocalc(zd, elevation)
 % elevation: satellite elevation (degrees)
 % tropo: line-of-sight tropospheric delay (m)
 
-tropo = zd ./ sind(elevation);
+tropo = zd ./ sqrt(1-(cosd(elevation)/1.001).^2);
 
 end
