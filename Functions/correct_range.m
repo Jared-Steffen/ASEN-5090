@@ -1,4 +1,4 @@
-function corrected_rho = correct_range(t,receiver_ecef,sat_ecef0,broadcast_data,prn)
+function [corrected_rho, sat_pos_tt] = correct_range(t,receiver_ecef,sat_ecef0,broadcast_data,prn)
 % Takes in a time vector that is [wn, tow] (outputs from cal2gps), the
 % receiver position in ecef (3x1), initial sat position in ecef (3xN), 
 % broadcast_data (the output from read_clean_GPSbroadcast) and the PRN
@@ -10,7 +10,7 @@ wE  = 7.2921151467e-5; % WGS-84 value, rad/s
 
 % Loop through time
 corrected_rho = zeros(1,size(t,1));
-for i = 1:length(t)
+for i = 1:size(t,1)
 
     % Calculate initial range
     tr = t(i,2);
