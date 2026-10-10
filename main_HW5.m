@@ -91,11 +91,15 @@ stateCorrection = (H' * H) \ (H' * prefits(:));
 
 postfits = prefits' - H*stateCorrection;
 
+% Mean and stdv
+mean_postfits = mean(postfits);
+stdv_postfits = std(postfits);
+
 postfit_table = table(PRN,postfits,'VariableNames',{'PRN','Postfits'});
 disp(postfit_table)
 
-% Remove low elevation satellites (PRN 8, PRN 27, PRN 31)
-removeSatellites = ismember(PRN, [3, 27]);
+% Investigate better solution
+removeSatellites = ismember(PRN, [3, 8,27]);
 PRN_filtered = PRN(~removeSatellites);
 prefits_filtered = prefits(~removeSatellites);
 H_filtered = H(~removeSatellites, :);
@@ -108,6 +112,11 @@ postfits_filtered = prefits_filtered' - H_filtered *stateCorrection_filtered;
 postfit_filtered_table = table(PRN_filtered, postfits_filtered, ...
     'VariableNames', {'PRN','Postfits'});
 disp(postfit_filtered_table)
+
+% Print RMSE
+receiverPositionEstimate = nistECEF + stateCorrection_filtered(1:3);
+positionError = norm(receiverPositionEstimate - nistECEF);
+disp(positionError)
 
 %% Problem 3
 
