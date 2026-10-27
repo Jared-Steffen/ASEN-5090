@@ -1,4 +1,10 @@
-function H = measSensMat(satellite_ecef,receiver_ecef,R)
+function H = measSensMat(satellite_ecef,receiver_ecef,R,useReceiverDerivative)
+
+% Default preserves the existing behavior for Questions 1 and 2
+if nargin < 4
+    useReceiverDerivative = false;
+end
+
 %{
 satellite_ecef : 3xN matrix of satellite positions
 receiver_ecef : 3x1 vector of prior estimate for receiver location
@@ -22,6 +28,11 @@ for i = 1:length(R)
     H(i,1) = (satx(i) - rx) / R(i);
     H(i,2) = (saty(i) - ry) / R(i);
     H(i,3) = (satz(i) - rz) / R(i);
+end
+
+%for question 3
+if useReceiverDerivative
+    H(:,1:3) = -H(:,1:3);
 end
 
 end

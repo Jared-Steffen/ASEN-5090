@@ -1,4 +1,11 @@
-function [corrected_rho, sat_pos_tt] = correct_range(t,receiver_ecef,sat_ecef0,broadcast_data,prn)
+function [corrected_rho, sat_pos_tt] = correct_range( ...
+    t,receiver_ecef,sat_ecef0,broadcast_data,prn,returnRotatedPosition)
+
+% Default preserves the existing behavior for Questions 1 and 2
+if nargin < 6
+    returnRotatedPosition = false;
+end
+
 % Takes in a time vector that is [wn, tow] (outputs from cal2gps), the
 % receiver position in ecef (3x1), initial sat position in ecef (3xN), 
 % broadcast_data (the output from read_clean_GPSbroadcast) and the PRN
@@ -47,6 +54,9 @@ for i = 1:size(t,1)
     end
     
     corrected_rho(i) = rho;
+    if returnRotatedPosition
+        sat_pos_tt = sat_pos_tr;
+    end
 end
 
 end
